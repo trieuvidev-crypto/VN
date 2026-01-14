@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lá Cờ Tổ Quốc</title>
+  <style>
+    canvas {
+      background: white;
+      display: block;
+      margin: 20px auto;
+      border: 2px solid #000;
+    }
+  </style>
+</head>
+<body>
+<canvas id="flag" width="600" height="400"></canvas>
+
+<script>
+const canvas = document.getElementById("flag");
+const ctx = canvas.getContext("2d");
+
+const flag = {
+  x: 50,
+  y: 50,
+  width: 500,
+  height: 300,
+  star: {
+    cx: 300,
+    cy: 200,
+    outerRadius: 60,
+    innerRadius: 24
+  }
+};
+
+function drawRectangleStepByStep(cb) {
+  const {x, y, width, height} = flag;
+  ctx.strokeStyle = "black";
+  ctx.lineWidth = 2;
+
+  let steps = [
+    [x, y, x + width, y],
+    [x + width, y, x + width, y + height],
+    [x + width, y + height, x, y + height],
+    [x, y + height, x, y]
+  ];
+
+  let i = 0;
+  function drawNextLine() {
+    if (i >= steps.length) {
+      // Fill đỏ nền
+      ctx.fillStyle = "red";
+      ctx.fillRect(x + 1, y + 1, width - 2, height - 2);
+      cb();
+      return;
+    }
+    let [x1, y1, x2, y2] = steps[i++];
+    ctx.beginPath();
+    ctx.moveTo(x1, y1);
+    ctx.lineTo(x2, y2);
+    ctx.stroke();
+    setTimeout(drawNextLine, 200);
+  }
+  drawNextLine();
+}
+
+function drawStarStepByStep() {
+  const {cx, cy, outerRadius, innerRadius} = flag.star;
+  const points = [];
+  for (let i = 0; i < 10; i++) {
+    let angle = Math.PI / 5 * i - Math.PI / 2;
+    let r = i % 2 === 0 ? outerRadius : innerRadius;
+    let x = cx + r * Math.cos(angle);
+    let y = cy + r * Math.sin(angle);
+    points.push([x, y]);
+  }
+
+  let i = 0;
+  ctx.strokeStyle = "yellow";
+  ctx.lineWidth = 2;
+
+  function drawLine() {
+    if (i === 0) {
+      ctx.beginPath();
+      ctx.moveTo(...points[0]);
+    }
+    if (i < points.length) {
+      ctx.lineTo(...points[i]);
+      ctx.stroke();
+      i++;
+      setTimeout(drawLine, 200);
+    } else {
+      ctx.closePath();
+      ctx.fillStyle = "yellow";
+      ctx.fill();
+    }
+  }
+  drawLine();
+}
+
+drawRectangleStepByStep(drawStarStepByStep);
+</script>
+</body>
+</html>
